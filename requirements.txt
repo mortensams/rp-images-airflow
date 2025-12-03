@@ -1,3 +1,6 @@
+# Redis version pin - redis 5.1+ breaks Celery's redis.client.Pipeline
+redis>=5.0.0,<5.1.0
+
 # SQL Server connectivity
 pyodbc>=5.0.0
 pymssql>=2.2.0
