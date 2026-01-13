@@ -32,6 +32,9 @@ apache-airflow-providers-amazon>=9.0.0
 # Install separately or use OpenMetadata's standalone ingestion container instead
 # openmetadata-ingestion>=1.6.0
 
+# dlt-hub for data loading
+dlt[postgres,mssql,filesystem]>=0.4.0
+
 # Fake data generation
 faker>=28.0.0
 
