@@ -40,3 +40,9 @@ Thumbs.db
 
 # Local configuration
 .claude/settings.local.json
+
+# Docker image archives (for USB distribution — store separately)
+*.tar.gz
+
+# Temporary Claude working directories
+tmpclaude-*

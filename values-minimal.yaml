@@ -1,0 +1,74 @@
+# ADVARSEL: Dette image er IKKE godkendt til produktionsbrug.
+# Det har ikke været igennem en hardeningproces mod eventuelle sårbarheder.
+# Brug udelukkende til test, udvikling eller proof-of-concept formål.
+#
+# Minimal Helm values til Apache Airflow
+# Helm-chart: apache-airflow/airflow version 1.19.0
+#
+# Installation:
+#   helm repo add apache-airflow https://airflow.apache.org
+#   helm upgrade --install airflow apache-airflow/airflow \
+#     --version 1.19.0 \
+#     --namespace airflow \
+#     --create-namespace \
+#     -f values-minimal.yaml
+
+# ---------------------------------------------------------------------------
+# Airflow-image — peger på det spejlede image i Harbor-registryet
+# ---------------------------------------------------------------------------
+defaultAirflowRepository: registry.admin.dt-poc.projects.systematic-synergy.io/rp/rp-images-airflow
+defaultAirflowDigest: "sha256:019c11faf08d8f9b86c0ab5253f077f0fddcb799e7d57f3fe6033a94f13d3423"
+defaultAirflowTag: ""  # Lades tom når digest bruges
+
+# ---------------------------------------------------------------------------
+# Registry-autentificering — kræves når Harbor-registryet er privat
+# Opret hemmelighed først:
+#   kubectl create secret docker-registry regcred \
+#     --docker-server=registry.admin.dt-poc.projects.systematic-synergy.io \
+#     --docker-username=<brugernavn> \
+#     --docker-password=<adgangskode-eller-PAT> \
+#     --namespace=airflow
+# ---------------------------------------------------------------------------
+imagePullSecrets:
+  - name: regcred
+
+# ---------------------------------------------------------------------------
+# Eksekveringsmodel — LocalExecutor kræver ikke Redis/Celery og er enklest
+# ---------------------------------------------------------------------------
+executor: LocalExecutor
+
+# ---------------------------------------------------------------------------
+# Sikkerhedsnøgle til Airflow webserver-sessioner
+# VIGTIGT: Udskift med en stærk tilfældig nøgle i produktion:
+#   python -c "import secrets; print(secrets.token_hex(16))"
+# ---------------------------------------------------------------------------
+webserverSecretKey: "skift-mig-til-en-sikker-nøgle"
+
+# ---------------------------------------------------------------------------
+# Metadata-database — PostgreSQL spejlet til Harbor
+# ---------------------------------------------------------------------------
+postgresql:
+  enabled: true
+  image:
+    registry: registry.admin.dt-poc.projects.systematic-synergy.io
+    repository: rp/postgresql
+    tag: "15"
+    digest: "sha256:e802fbe24cc519e2e67ad41a03e38fa600fe4bca3d2b91da45881b34ee0ff82a"
+
+# ---------------------------------------------------------------------------
+# Deaktivér komponenter der ikke er nødvendige i en minimal opsætning
+# ---------------------------------------------------------------------------
+statsd:
+  enabled: false
+
+triggerer:
+  enabled: false
+
+# ---------------------------------------------------------------------------
+# Undgå Helm-hooks til job — nødvendigt i visse cluster-opsætninger
+# ---------------------------------------------------------------------------
+createUserJob:
+  useHelmHooks: false
+
+migrateDatabaseJob:
+  useHelmHooks: false
